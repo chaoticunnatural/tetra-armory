@@ -1,35 +1,19 @@
-package dev.wren.tetra_armory.module;
+package dev.wren.tetra_armory.module.data;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.gson.*;
-import com.mojang.datafixers.util.Pair;
+import dev.wren.tetra_armory.armor.ArmorHitStat;
 
 import java.lang.reflect.Type;
 
 public class ArmorData extends ArmorTierData<ArmorHitStat> {
 
     public static ArmorData overwrite(ArmorData a, ArmorData b) {
-        if (a == null) {
-            return b;
-        } else if (b == null) {
-            return a;
-        }
-
-        ArmorData result = new ArmorData();
-        result.defenseMap.putAll(a.defenseMap);
-        result.toughnessMap.putAll(a.toughnessMap);
-        result.kbResMap.putAll(a.kbResMap);
-
-        result.defenseMap.putAll(b.defenseMap);
-        result.toughnessMap.putAll(b.toughnessMap);
-        result.kbResMap.putAll(b.kbResMap);
-
-        return result;
+        return defaultOverwrite(a, b, new ArmorData());
     }
 
     public static ArmorData merge(Collection<ArmorData> data) {
@@ -37,47 +21,15 @@ public class ArmorData extends ArmorTierData<ArmorHitStat> {
     }
 
     public static ArmorData merge(ArmorData a, ArmorData b) {
-        if (a == null) {
-            return b;
-        } else if (b == null) {
-            return a;
-        }
-
-        ArmorData result = new ArmorData();
-        result.defenseMap = Stream.of(a, b)
-                .map(armorData -> armorData.defenseMap)
-                .map(Map::entrySet)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Float::sum));
-        result.toughnessMap = Stream.of(a, b)
-                .map(armorData -> armorData.toughnessMap)
-                .map(Map::entrySet)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Float::sum));
-        result.kbResMap = Stream.of(a, b)
-                .map(armorData -> armorData.kbResMap)
-                .map(Map::entrySet)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Float::sum));
-
-        return result;
+        return defaultMerge(a, b, new ArmorData());
     }
 
-    public static ArmorData multiply(ArmorData armorData, float levelMultiplier, float efficiencyMultiplier) {
-        return Optional.ofNullable(armorData)
-                .map(data -> {
-                    ArmorData result = new ArmorData();
-                    result.defenseMap = data.defenseMap.entrySet().stream()
-                            .map(entry -> new Pair<>(entry.getKey(), entry.getValue() * levelMultiplier))
-                            .filter(pair -> pair.getSecond() != 0)
-                            .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
-                    result.toughnessMap = data.toughnessMap.entrySet().stream()
-                            .map(entry -> new Pair<>(entry.getKey(), entry.getValue() * efficiencyMultiplier))
-                            .filter(pair -> pair.getSecond() != 0)
-                            .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
-                    return result;
-                })
-                .orElse(null);
+    public static ArmorData multiply(ArmorData armorData, float multiplier) {
+        return defaultMultiply(multiplier, multiplier, multiplier, armorData, new ArmorData());
+    }
+
+    public static ArmorData multiply(ArmorData armorData, float defenseMultiplier, float toughnessMultiplier, float kbResModifier) {
+        return defaultMultiply(defenseMultiplier, toughnessMultiplier, kbResModifier, armorData, new ArmorData());
     }
 
     public static ArmorData offsetLevel(ArmorData armorData, float multiplier, int offset) {

@@ -18,6 +18,7 @@ public class ArmorEffect {
     public static final ArmorEffect workable = get("workable");
     public static final ArmorEffect unstable = get("unstable");
     public static final ArmorEffect unbreaking = get("unbreaking");
+    public static final ArmorEffect stabilizing = get("stabilizing");
 
     private final String key;
 
@@ -26,7 +27,7 @@ public class ArmorEffect {
     }
 
     public static ArmorEffect get(String key) {
-        return (ArmorEffect) effectMap.computeIfAbsent(key, k -> new ArmorEffect(key));
+        return effectMap.computeIfAbsent(key, k -> new ArmorEffect(key));
     }
 
     public String getKey() {
