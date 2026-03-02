@@ -824,11 +824,11 @@ public interface IModularArmor {
                 .reduce(null, EffectData::merge);
     }
 
-    Cache<String, EffectData> getEffectDataCache();
+    Cache<String, EffectData> getArmorEffectDataCache();
 
     default EffectData getEffectDataCached(ItemStack itemStack) {
         try {
-            return getEffectDataCache().get(getDataCacheKey(itemStack),
+            return getArmorEffectDataCache().get(getDataCacheKey(itemStack),
                     () -> Optional.ofNullable(getEffectData(itemStack)).orElseGet(EffectData::new));
         } catch (ExecutionException e) {
             e.printStackTrace();
@@ -1043,13 +1043,6 @@ public interface IModularArmor {
         return synergy.modules.length > 0 && moduleMatches == synergy.modules.length;
     }
 
-    /**
-     * Resets and applies effects for the current setup of modules & improvements. Applies enchantments and other things which cannot be emulated
-     * through other means. Call this after each time the module setup changes.
-     *
-     * @param itemStack The modular item itemstack
-     * @param severity
-     */
     default void assemble(ItemStack itemStack, @Nullable Level world, float severity) {
         if (itemStack.getDamageValue() > itemStack.getMaxDamage()) {
             itemStack.setDamageValue(itemStack.getMaxDamage());
